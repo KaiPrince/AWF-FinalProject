@@ -80,6 +80,57 @@ def test_create_user(client, db, mocker: MockFixture):
     } in db_users
 
 
-@pytest.mark.skip("TODO")
+def test_update_user(client, db, mocker):
+    """ Change the user's password. """
+    # Arrange
+    user_id = 1
+    password = "finger_biter"
+
+    expected_salt = b"\xa8\xce\x99\xad\x8f\xab\xd9\x96\xdd\xb9k\x160\x82\x84t"
+    mocker.patch("crypto.generate_salt", new=lambda: expected_salt)
+    expected_hash = b"\xa3\xdf\xec\x7f\xba-~\xb7\x9a\x8c\xf7\xe4\x87\xbcOI\xa2$\x02\xcb\xc7\xf2nj@\x14\xa5\x93d\xd5\x15\x93"
+
+    # Act
+    response = client.put(
+        f"/api/users/{user_id}", json={"username": "alice", "password": password}
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    with db.connect() as connection:
+        query_result = connection.execute(
+            text("Select hash, salt From account Where user_id = :user_id"),
+            {"user_id": user_id},
+        )
+        db_users = [
+            {
+                "hash": row["hash"],
+                "salt": row["salt"],
+            }
+            for row in query_result
+        ]
+    assert len(db_users) == 1
+    user_hash = db_users[0]["hash"]
+    user_salt = db_users[0]["salt"]
+
+    assert user_hash == expected_hash
+    assert user_salt == expected_salt
+
+
 def test_delete_user(client, db):
-    pass
+    """ Delete a user by id. """
+    # Arrange
+    user_id = 1
+
+    # Act
+    response = client.delete(f"/api/users/{user_id}")
+
+    # Assert
+    assert response.status_code in [200, 204]
+    with db.connect() as connection:
+        cursor = connection.execute(
+            text("Select user_id, username, hash, salt From account"),
+        )
+        user_ids = [row["user_id"] for row in cursor]
+    assert user_id not in user_ids
