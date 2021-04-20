@@ -4,3 +4,4 @@ fastapi
 sqlalchemy
 uvicorn
 pyjwt
+psycopg2
