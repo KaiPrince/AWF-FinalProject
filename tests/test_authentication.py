@@ -45,17 +45,64 @@ def test_get_user_bad_auth(client):
     response = client.get(f"api/users/{user_id}", headers={"auth-token": token})
 
     # Assert
-    assert response.status_code in [401, 403]
+    assert response.status_code == 401
 
 
-def test_del_valid_auth(client):
-    """ Calls the get user route with a valid auth token. """
+def test_delete_valid_auth(client):
+    """ Calls the delete user route with a valid auth token. """
     # Arrange
     user_id = 1
     token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.RAuDG1t4uERT9Za3P4MzvLiUYAv3dtyHQBp4N45MhhA"
 
     # Act
-    response = client.get(f"api/users/{user_id}", headers={"auth-token": token})
+    response = client.delete(f"api/users/{user_id}", headers={"auth-token": token})
 
     # Assert
     assert response.status_code == 200
+
+
+def test_delete_bad_auth(client):
+    """ Calls the delete user route with an invalid auth token. """
+    # Arrange
+    user_id = 1
+    token = "bad_auth"
+
+    # Act
+    response = client.delete(f"api/users/{user_id}", headers={"auth-token": token})
+
+    # Assert
+    assert response.status_code == 401
+
+
+def test_update_valid_auth(client):
+    """ Calls the update user route with a valid auth token. """
+    # Arrange
+    user_id = 1
+    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.RAuDG1t4uERT9Za3P4MzvLiUYAv3dtyHQBp4N45MhhA"
+
+    # Act
+    response = client.put(
+        f"api/users/{user_id}",
+        headers={"auth-token": token},
+        json={"username": "alice", "password": "new_password"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+
+def test_update_bad_auth(client):
+    """ Calls the update user route with an invalid auth token. """
+    # Arrange
+    user_id = 1
+    token = "bad_auth"
+
+    # Act
+    response = client.put(
+        f"api/users/{user_id}",
+        headers={"auth-token": token},
+        json={"username": "alice", "password": "new_password"},
+    )
+
+    # Assert
+    assert response.status_code == 401

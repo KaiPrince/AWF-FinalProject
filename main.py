@@ -112,7 +112,21 @@ def list_users(db=Depends(get_db)):
 
 
 @app.put("/api/users/{user_id}")
-def update_password(user_id: int, credentials: Credentials, db=Depends(get_db)):
+def update_password(
+    user_id: int,
+    credentials: Credentials,
+    auth_token: Optional[str] = Header(None),
+    db=Depends(get_db),
+):
+    token_payload = decode_jwt(auth_token)
+    if auth_token is None or not token_payload:
+        raise HTTPException(status_code=401, detail="Auth token invalid.")
+
+    if token_payload["user_id"] != user_id:
+        raise HTTPException(
+            status_code=403, detail="User does not have permission for this action."
+        )
+
     username, password_hash, salt = make_salt_hash(credentials)
 
     query = text(
@@ -133,7 +147,18 @@ def update_password(user_id: int, credentials: Credentials, db=Depends(get_db)):
 
 
 @app.delete("/api/users/{user_id}")
-def delete_user(user_id: int, db=Depends(get_db)):
+def delete_user(
+    user_id: int, auth_token: Optional[str] = Header(None), db=Depends(get_db)
+):
+    token_payload = decode_jwt(auth_token)
+    if auth_token is None or not token_payload:
+        raise HTTPException(status_code=401, detail="Auth token invalid.")
+
+    if token_payload["user_id"] != user_id:
+        raise HTTPException(
+            status_code=403, detail="User does not have permission for this action."
+        )
+
     sql = text("DELETE FROM account WHERE account.user_id = :user_id")
     db.execute(sql, {"user_id": user_id})
     db.commit()

@@ -85,6 +85,7 @@ def test_update_user(client, db, mocker):
     """ Change the user's password. """
     # Arrange
     user_id = 1
+    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.RAuDG1t4uERT9Za3P4MzvLiUYAv3dtyHQBp4N45MhhA"
     password = "finger_biter"
 
     expected_salt = b"\xa8\xce\x99\xad\x8f\xab\xd9\x96\xdd\xb9k\x160\x82\x84t"
@@ -93,7 +94,9 @@ def test_update_user(client, db, mocker):
 
     # Act
     response = client.put(
-        f"/api/users/{user_id}", json={"username": "alice", "password": password}
+        f"/api/users/{user_id}",
+        headers={"auth-token": token},
+        json={"username": "alice", "password": password},
     )
 
     # Assert
@@ -123,9 +126,10 @@ def test_delete_user(client, db):
     """ Delete a user by id. """
     # Arrange
     user_id = 1
+    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.RAuDG1t4uERT9Za3P4MzvLiUYAv3dtyHQBp4N45MhhA"
 
     # Act
-    response = client.delete(f"/api/users/{user_id}")
+    response = client.delete(f"/api/users/{user_id}", headers={"auth-token": token})
 
     # Assert
     assert response.status_code in [200, 204]
