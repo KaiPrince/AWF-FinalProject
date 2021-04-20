@@ -17,8 +17,7 @@ from db import get_db
 from models import Credentials
 from philip_jwt import issue_jwt_token, decode_jwt
 
-port = os.environ.get("PORT", 8000)
-app = FastAPI(port=port)
+app = FastAPI()
 
 
 @app.get("/")
