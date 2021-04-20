@@ -6,6 +6,7 @@
 * Description: This file contains the main entrypoint for the AWF FinalProject
 *   backend.
 """
+import os
 from typing import Optional
 
 from fastapi import FastAPI, Depends, HTTPException, Header
@@ -16,7 +17,8 @@ from db import get_db
 from models import Credentials
 from philip_jwt import issue_jwt_token, decode_jwt
 
-app = FastAPI()
+port = os.environ.get("PORT", 8000)
+app = FastAPI(port=port)
 
 
 @app.get("/")
