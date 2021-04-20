@@ -42,8 +42,18 @@ def app():
 
     init_script = Path(INIT_SCRIPT).read_text()
     users = [
-        {"username": "alice", "password": "simple_password"},
-        {"username": "bob", "password": "P@ssw0rd!"},
+        {
+            "username": "alice",
+            "password": "simple_password",
+            "salt": b"`\x98\xe3\xd3,`Pq\xef\xd6'\x1c}\x9c\x99B",
+            "hash": b"\x9fG&\xfe\xe0x[\x8d<\xcdc\x1b\x91\xddw\x06\x94O\x8cl\xe6\xb3~\x84;8PE$\xccj\x1f",
+        },
+        {
+            "username": "bob",
+            "password": "P@ssw0rd!",
+            "salt": b"\xd6\xf2?!\x84\r6z\xd0\xe2n\xdd\x82\t\x7f\xfe",
+            "hash": b'\xa1"\x8b\x1a\xeb\xcc[j,u\x91\xc30\x1c\x9e\x1e\xed\x16\x9b\xfb\x0b\xd8#\x9c!\x86,\x12\xdd>\xb8]',
+        },
     ]
 
     sql = text(
@@ -56,8 +66,9 @@ def app():
             connection.execute(statement)
 
         for user in users:
-            salt, password_hash = salt_hash_password(user["password"])
             username = user["username"]
+            salt = user["salt"]
+            password_hash = user["hash"]
             connection.execute(
                 sql,
                 {"username": username, "password_hash": password_hash, "salt": salt},

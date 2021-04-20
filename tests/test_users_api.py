@@ -31,9 +31,10 @@ def test_get_user(client):
     """ Gets a user by id. """
     # Arrange
     alice_data = {"user_id": 1, "username": "alice"}
+    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.RAuDG1t4uERT9Za3P4MzvLiUYAv3dtyHQBp4N45MhhA"
 
     # Act
-    response = client.get("/api/users/1")
+    response = client.get("/api/users/1", headers={"auth-token": token})
 
     # Assert
     assert response.status_code == 200

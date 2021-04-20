@@ -1,5 +1,7 @@
 import jwt
+from jwt import InvalidTokenError
 
+# TODO: get from .env
 secret = "our secret <3"
 
 
@@ -8,4 +10,7 @@ def issue_jwt_token(payload):
 
 
 def decode_jwt(token):
-    return jwt.decode(token, secret, algorithms=["HS256"])
+    try:
+        return jwt.decode(token, secret, algorithms=["HS256"])
+    except InvalidTokenError:
+        return False
